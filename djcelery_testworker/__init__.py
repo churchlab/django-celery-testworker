@@ -49,7 +49,7 @@ def run_celery_test_worker(options=[]):
         options.remove('--verbose')
         silent = False    
     
-    execv_argv = [os.path.abspath(sys.argv[0]), "celerytestworker"] # celerytestworker command defined by celerytests
+    execv_argv = ["./manage.py", "celerytestworker"] # celerytestworker command defined by celerytests
 
     # python buffers stdout normally, use pty instead
     master, slave = pty.openpty()
