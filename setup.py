@@ -17,8 +17,6 @@ setup(
     zip_safe=False,
     include_package_data=True,
     install_requires=[
-        'lettuce>=0.2.15',
-        'splinter>=0.5.0',
         'django_celery>=3.0.11',
     ],
 )
