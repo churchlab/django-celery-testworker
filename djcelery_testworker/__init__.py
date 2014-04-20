@@ -30,6 +30,19 @@ class WorkerOutputThread(threading.Thread):
                 if "ready" in line:
                     self.is_ready.set()
 
+                # HACK: When an exception is raised, write the exception,
+                # then sleep until failure state is set on celery task, then
+                # kill the celery process. The reason I added this hack is that
+                # the test just hangs after celery has errored. There's
+                # probably a place to check celery's status, but I havne't
+                # found it.
+                if "raised exception" in line:
+                    sys.stdout.write(line)
+                    import time
+                    time.sleep(5)
+                    self.process.kill()
+                    break
+
                 if line != "" and not self.silent:
                     sys.stdout.write(line)
 
