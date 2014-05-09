@@ -71,15 +71,6 @@ class CeleryWorkerTestCase(TransactionTestCase):
             settings.BROKER_URL = settings.CELERY_TEST_BROKER
             os.environ['CELERY_BROKER_URL'] = settings.CELERY_TEST_BROKER
 
-        cls.worker_thread = CeleryWorkerThread()
-        # cls.worker_thread.daemon = True
-        cls.worker_thread.start()
-
-        # Wait for the worker to be ready
-        cls.worker_thread.is_ready.wait()
-        if cls.worker_thread.error:
-            raise cls.worker_thread.error
-        
         super(CeleryWorkerTestCase, cls).setUpClass()
 
     @classmethod
@@ -91,6 +82,16 @@ class CeleryWorkerTestCase(TransactionTestCase):
             cls.worker_thread.join(5)
 
         super(CeleryWorkerTestCase, cls).tearDownClass()
+
+    def _pre_setup(self):
+        self.worker_thread = CeleryWorkerThread()
+        self.worker_thread.start()
+
+        # Wait for the worker to be ready
+        self.worker_thread.is_ready.wait()
+        if self.worker_thread.error:
+            raise self.worker_thread.error
+        super(CeleryWorkerTestCase, self)._pre_setup()
 
     def _post_teardown(self):
         self.worker_thread.join(5)
