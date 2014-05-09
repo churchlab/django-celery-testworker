@@ -64,18 +64,25 @@ def run_celery_test_worker(options=[]):
     
     execv_argv = ["./manage.py", "celerytestworker"] # celerytestworker command defined by celerytests
 
+    # TODO: This whole pty game is buggy. Probably just delete it.
+
     # python buffers stdout normally, use pty instead
-    master, slave = pty.openpty()
-    process = subprocess.Popen(execv_argv + options, stdin=subprocess.PIPE, stdout=slave, stderr=slave, close_fds=True)
+    # master, slave = pty.openpty()
+    # process = subprocess.Popen(execv_argv + options,
+    #         stdin=subprocess.PIPE,
+    #         stdout=slave,
+    #         stderr=subprocess.STDOUT,
+    #         close_fds=True)
 
-    output_thread = WorkerOutputThread(master, process, silent=silent)
-    output_thread.start()
-    if not output_thread.is_ready.wait(5):
-        output_thread.close = True
-        raise Exception("Celery worker failed: " + "\n".join(output_thread.output))
+    # output_thread = WorkerOutputThread(master, process, silent=silent)
+    # output_thread.start()
+    # if not output_thread.is_ready.wait(5):
+    #     output_thread.close = True
+    #     raise Exception("Celery worker failed: " + "\n".join(output_thread.output))
 
-    if process.returncode is not None:
-        output_thread.close = True
-        raise Exception("Celery worker failed to start")
+    # if process.returncode is not None:
+    #     output_thread.close = True
+    #     raise Exception("Celery worker failed to start")
 
+    process = subprocess.Popen(execv_argv + options)
     return process

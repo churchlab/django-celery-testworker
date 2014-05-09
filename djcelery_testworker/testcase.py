@@ -30,6 +30,7 @@ class CeleryWorkerThread(threading.Thread):
             import traceback
             traceback.print_exc()
             self.error = e
+            return
 
         # Signal ready and wait for worker process to terminate
         self.is_ready.set()
@@ -71,7 +72,7 @@ class CeleryWorkerTestCase(TransactionTestCase):
             os.environ['CELERY_BROKER_URL'] = settings.CELERY_TEST_BROKER
 
         cls.worker_thread = CeleryWorkerThread()
-        cls.worker_thread.daemon = True
+        # cls.worker_thread.daemon = True
         cls.worker_thread.start()
 
         # Wait for the worker to be ready
@@ -90,3 +91,7 @@ class CeleryWorkerTestCase(TransactionTestCase):
             cls.worker_thread.join(5)
 
         super(CeleryWorkerTestCase, cls).tearDownClass()
+
+    def _post_teardown(self):
+        self.worker_thread.join(5)
+        super(CeleryWorkerTestCase, self)._post_teardown()
